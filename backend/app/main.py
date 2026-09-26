@@ -70,10 +70,11 @@ app.add_middleware(
 )
 
 # Register routers
-from app.api import manufacturing, company_feed  # noqa: E402
+from app.api import manufacturing, company_feed, demo  # noqa: E402
 
 app.include_router(manufacturing.router, prefix="/api")
 app.include_router(company_feed.router, prefix="/api")
+app.include_router(demo.router, prefix="/api")
 
 
 @app.get("/health", tags=["Health"])
