@@ -1,0 +1,21 @@
+NOVACORE TECHNOLOGIES — FINANCIAL PLANNING & ANALYSIS
+Executive Approval Record: Capital Allocation & Revenue Projections
+Project: NovaCore Edge Platform Launch (Q4 2026)
+Date: September 17, 2026
+Financial Controller: Marcus Webb, Finance Director
+
+FINANCIAL APPROVAL SUMMARY:
+1. Operational Expenditure Approval:
+   - Infrastructure provisioning and CDN edge capacity: $320,000 (Approved).
+   - Vendor integration and licensing reserve (Meridian Payments SLA): $130,000 (Approved).
+   - Total Authorized Launch Budget: $450,000.
+
+2. Contracted Revenue Commitments:
+   - NovaCore Edge Platform has secured 14 Tier-1 enterprise pre-commitments valued at $2,400,000 in Q4 contracted ARR.
+   - 40% of contracted enterprise accounts ($960,000 ARR) require live billing settlement via the Meridian Payments API module upon activation.
+   - Billing grace period: Contracts permit up to 14 days onboarding grace period before SLA penalty assessments begin.
+
+3. APPROVAL STATUS:
+   - Finance Gate G-3: 🟢 APPROVED by Marcus Webb.
+   - Status: Validated for October 15, 2026 launch date.
+   - Risk Caveat: Any launch postponement beyond October 25 will push revenue recognition into Q1 2027 and violate customer SLA billing covenants.

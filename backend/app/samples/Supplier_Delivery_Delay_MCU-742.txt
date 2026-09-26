@@ -1,0 +1,14 @@
+SUPPLIER DISRUPTION MEMO
+DATE: October 12, 2026
+FROM: MicroTech Components Logistics Desk
+TO: NovaCore Electronics Materials Planning
+SUBJECT: URGENT: Delivery Delay Notification — MCU-742
+
+This document serves as formal notification that delivery of component MCU-742 originally scheduled for arrival at NovaCore Plant #4 on October 12 has encountered an international shipping disruption.
+
+Due to logistics disruption during air freight consolidation in Singapore, revised arrival date is October 17 (a slip of 5 business days).
+
+Affected Part: MCU-742
+Quantity: 1,500 units
+Original Delivery: October 12, 2026
+New Expected Delivery: October 17, 2026

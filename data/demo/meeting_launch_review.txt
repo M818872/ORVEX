@@ -1,0 +1,136 @@
+NOVACORE TECHNOLOGIES — INTERNAL MEETING TRANSCRIPT
+Meeting: Apex Platform Launch Review — Q4 Planning Session
+Date: September 20, 2026
+Time: 10:00 AM — 12:15 PM
+Location: Boardroom A, NovaCore HQ / Video Conference
+Facilitator: Sarah Chen, VP Operations
+Attendees:
+  - Sarah Chen (VP Operations)
+  - Daniel Okafor (Engineering Lead)
+  - Priya Sharma (Procurement Manager)
+  - Marcus Webb (Finance Director)
+  - Aisha Patel (Project Manager)
+  - Kevin Liu (Product Director)
+  - Tom Hendricks (QA Lead)
+
+Recording Status: Approved for internal distribution
+
+---
+
+SECTION 1 — MEETING OPENING
+
+Sarah Chen (VP Operations): Good morning, everyone. Today's launch review is critical. We have a hard customer commitment for the Apex Platform launch and I want a frank assessment of where we stand. Let's go around the room.
+
+Kevin Liu (Product Director): Product is feature-complete. The core platform modules — reporting, analytics dashboard, and user management — all passed UAT last week. We're confident on the product side.
+
+Tom Hendricks (QA Lead): QA has signed off on all primary test suites. We identified 12 low-severity defects, all documented. None are launch blockers on our end.
+
+---
+
+SECTION 2 — ENGINEERING STATUS REPORT
+
+Daniel Okafor (Engineering Lead): I have to flag a significant concern before we proceed. Our Meridian Payments vendor API integration is incomplete. The Meridian API is responsible for transaction processing in the enterprise billing module — it's not a nice-to-have; it's a hard dependency for enterprise customers.
+
+Sarah Chen: When you say incomplete — what exactly does that mean?
+
+Daniel Okafor: The Meridian API documentation we were given has a major discrepancy. Their v3 authentication protocol doesn't match what was described in the contract. We've been in back-and-forth with their technical team for three weeks. As of this morning, they have not delivered the corrected API specification.
+
+Marcus Webb (Finance Director): What's the financial impact if we launch without it?
+
+Daniel Okafor: Enterprise customers — about 40% of our contracted base — cannot use the billing module. That's potentially a $2.1M revenue impact in Q4.
+
+Sarah Chen: Understood. Priya, where does Procurement stand?
+
+---
+
+SECTION 3 — PROCUREMENT UPDATE
+
+Priya Sharma (Procurement Manager): We have an escalation call scheduled with Meridian's VP of Partnerships tomorrow — September 21. We've formally escalated this to their executive team. They've acknowledged the documentation error is on their side.
+
+Sarah Chen: What's their estimated resolution timeline?
+
+Priya Sharma: Their technical team told us informally — and I want to be clear this is not a formal commitment — that they expect the corrected API specification around October 10. They haven't put that in writing yet.
+
+Daniel Okafor: October 10 is the vendor's internal estimate. Even if we get the spec on October 10, our engineers need at minimum two to three business days for integration, then another two days for QA sign-off.
+
+Aisha Patel (Project Manager): So realistically you're looking at integration completion around October 14 or 15, depending on any complications.
+
+Daniel Okafor: That's the optimistic scenario. If there are any API surprises — and with Meridian there usually are — it could slip to October 17 or 18.
+
+---
+
+SECTION 4 — PROPOSED DECISION: LAUNCH DATE
+
+Sarah Chen: Our current plan has the launch on October 1. Based on everything we've heard, I'm proposing we move the launch date to October 15. That gives Engineering time to complete the API integration after Meridian delivers, and gives QA time for final validation.
+
+Aisha Patel: October 15 works from a project management standpoint, assuming the Meridian spec arrives by October 10 as indicated.
+
+Kevin Liu: I'm comfortable with October 15 as a proposed date, but I want to flag that we've already communicated October 1 to several enterprise customers. We'll need to notify them promptly.
+
+Marcus Webb: Finance needs confirmation on the additional cost impact. Priya, is there an additional charge from Meridian for the delayed API delivery or the additional support they're providing?
+
+Priya Sharma: Procurement should follow up with the vendor on any additional charges related to the delay. I'll confirm that tomorrow on the call. I'll have a cost report back to Finance within 48 hours of the vendor call.
+
+---
+
+SECTION 5 — CUSTOMER AND COMMUNICATIONS
+
+Kevin Liu: If we move to October 15, we need a customer communication plan. Several of our enterprise customers have their own internal launch dependencies tied to our October 1 date. Moving it two weeks impacts their planning.
+
+Sarah Chen: Agreed. I'll work with Communications on a customer notification plan. The message needs to go out no later than October 1 to give customers adequate notice.
+
+Aisha Patel: I'll update the project timeline in Jira and send revised milestones to all stakeholders.
+
+---
+
+SECTION 6 — RISK DISCUSSION
+
+Tom Hendricks: I want to flag a QA risk. If the integration isn't complete until October 14 or 15, we're looking at a very compressed QA window for the billing module. Ideally we want 48–72 hours of regression testing before launch.
+
+Daniel Okafor: Agreed. If we get the spec on October 10, we'll need to work weekends. I'd need Engineering to be on standby from October 10.
+
+Sarah Chen: That's an operational commitment. I'll need Finance to confirm weekend staffing budget.
+
+Marcus Webb: I'll need the headcount numbers from Engineering by end of week.
+
+---
+
+SECTION 7 — POLICY REFERENCE RAISED
+
+Sarah Chen: One thing I want to make sure we cover: our operations policy requires that any production launch-date change follow proper notification procedures. I'll check with Legal and Operations Governance before we formally communicate the new date. We need to make sure we're compliant.
+
+Aisha Patel: I'll flag this for compliance review.
+
+---
+
+SECTION 8 — DECISIONS AND ACTION ITEMS
+
+Sarah Chen: Let me summarize what we've decided and who owns what.
+
+Proposed decisions:
+1. Move the Apex Platform launch date from October 1 to October 15, pending Operations approval and policy compliance check.
+2. Meridian vendor escalation is active with a target resolution of October 10.
+
+Action items:
+1. Procurement (Priya Sharma): Follow up with Meridian vendor on API specification ETA and any additional charges — due by September 22.
+2. Finance (Marcus Webb): Confirm additional vendor cost impact — due by September 23.
+3. Engineering (Daniel Okafor): Provide weekend staffing headcount for October 10–15 — due by September 25.
+4. Project Management (Aisha Patel): Update project timeline and notify all internal stakeholders — due by September 22.
+5. Operations (Sarah Chen): Confirm compliance with launch-date change policy before external communication — due by September 22.
+6. Product (Kevin Liu): Prepare customer notification plan for enterprise accounts — due by September 23.
+
+---
+
+SECTION 9 — CLOSING
+
+Sarah Chen: The proposed October 15 launch is NOT final. It is subject to Operations governance approval and Meridian API confirmation. We do NOT communicate October 15 externally until those two conditions are met.
+
+Meeting adjourned at 12:15 PM.
+
+Next review: September 24, 2026 — same participants.
+
+---
+
+END OF TRANSCRIPT
+Transcribed by: Aisha Patel (PM)
+Distribution: Internal — Meeting Attendees Only

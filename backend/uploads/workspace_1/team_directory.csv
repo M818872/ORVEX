@@ -1,0 +1,16 @@
+employee_id,name,department,role,email,manager,team
+EMP001,Sarah Chen,Operations,VP Operations,s.chen@novacore.tech,CEO,Executive
+EMP002,Daniel Okafor,Engineering,Engineering Lead,d.okafor@novacore.tech,CTO,Apex Engineering
+EMP003,Priya Sharma,Procurement,Procurement Manager,p.sharma@novacore.tech,COO,Vendor Relations
+EMP004,Marcus Webb,Finance,Finance Director,m.webb@novacore.tech,CFO,Financial Planning
+EMP005,Aisha Patel,PMO,Project Manager,a.patel@novacore.tech,VP Operations,Apex PMO
+EMP006,Kevin Liu,Product,Product Director,k.liu@novacore.tech,CPO,Product Management
+EMP007,Tom Hendricks,QA,QA Lead,t.hendricks@novacore.tech,VP Engineering,Quality Assurance
+EMP008,Rachel Kim,DevOps,DevOps Engineer,r.kim@novacore.tech,Engineering Lead,Platform Engineering
+EMP009,James Osei,Engineering,Senior Engineer,j.osei@novacore.tech,Engineering Lead,Apex Engineering
+EMP010,Maria Santos,Communications,Comms Manager,m.santos@novacore.tech,CPO,Marketing & Comms
+EMP011,David Park,Legal,Senior Counsel,d.park@novacore.tech,General Counsel,Legal
+EMP012,Nina Petrov,Finance,Financial Analyst,n.petrov@novacore.tech,Finance Director,Financial Planning
+EMP013,Raj Kapoor,Engineering,API Integration Engineer,r.kapoor@novacore.tech,Engineering Lead,Apex Engineering
+EMP014,Chloe Wright,QA,QA Engineer,c.wright@novacore.tech,QA Lead,Quality Assurance
+EMP015,Ben Torres,Product,Product Manager,b.torres@novacore.tech,Product Director,Product Management

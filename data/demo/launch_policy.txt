@@ -1,0 +1,183 @@
+NOVACORE TECHNOLOGIES
+PRODUCT LAUNCH GOVERNANCE POLICY
+Policy Reference: OPS-GOV-LAUNCH-001
+Version: 3.2
+Effective Date: January 15, 2026
+Owner: VP Operations
+Approved By: Executive Leadership Committee
+Next Review Date: January 15, 2027
+Classification: Internal — All Employees
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. PURPOSE AND SCOPE
+
+1.1 PURPOSE
+
+This policy establishes the governance requirements for planning, approving, communicating, and executing product launch date changes at NovaCore Technologies. It ensures that launch date changes are managed in a controlled, auditable, and stakeholder-aware manner, minimizing business risk and protecting customer commitments.
+
+1.2 SCOPE
+
+This policy applies to:
+  - All production software releases
+  - All enterprise product launches
+  - Any externally communicated launch, release, or delivery date
+  - All changes to previously announced or internally committed launch dates
+  - All NovaCore employees, contractors, and third-party partners involved in launch planning
+
+1.3 EXCLUSIONS
+
+This policy does not apply to:
+  - Internal development milestones not communicated externally
+  - Patch releases or security hotfixes with explicit emergency classification
+  - Beta or preview releases explicitly labeled as non-committal
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2. CORE LAUNCH DATE CHANGE REQUIREMENTS
+
+2.1 MINIMUM NOTICE REQUIREMENT
+
+Any change to a production launch date that has been formally communicated to customers, partners, or external stakeholders requires a MINIMUM OF 14 CALENDAR DAYS notice prior to the original confirmed date.
+
+EXAMPLE: If the original launch date is October 1, 2026, a date change notification must be issued no later than September 17, 2026, to satisfy the 14-day minimum notice requirement.
+
+Failure to provide 14 days notice constitutes a policy breach and requires post-event reporting to the Executive Leadership Committee.
+
+2.2 OPERATIONS APPROVAL REQUIREMENT
+
+ANY change to a production launch date — regardless of the notice period available — requires explicit written approval from the VP of Operations or designee before:
+  (a) The change is communicated to external parties
+  (b) The new date is treated as an internal commitment
+  (c) Any project plan, JIRA, or scheduling system is updated to reflect the new date as confirmed
+
+Operations approval must be documented in writing (email or formal approval record) and referenced in the project record.
+
+2.3 DUAL REQUIREMENT CLAUSE
+
+Both conditions (14-day notice AND Operations approval) are mandatory. Satisfying only one condition does not constitute compliance with this policy.
+
+EXCEPTION CLAUSE: If the notice period cannot be satisfied due to circumstances outside NovaCore's control (e.g., critical vendor failure, security incident, regulatory requirement), Operations approval alone may authorize a policy exception. The exception must be documented in writing and reported to the Executive Leadership Committee within 3 business days.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+3. APPROVAL PROCESS
+
+3.1 STANDARD APPROVAL PROCESS
+
+Step 1 — Impact Assessment
+  The Project Manager must prepare a Launch Date Change Impact Assessment covering:
+    - Reason for proposed date change
+    - Affected customers and contracts
+    - Revenue impact (if any)
+    - Technical justification
+    - Risk assessment
+    - Alternative date rationale
+
+Step 2 — Stakeholder Notification
+  The following stakeholders must be notified before Operations approval is sought:
+    - Finance Director (budget/revenue impact)
+    - Product Director (customer commitments)
+    - Engineering Lead (technical feasibility)
+    - Legal (contractual obligations, if applicable)
+
+Step 3 — Operations Review
+  VP Operations reviews the impact assessment and stakeholder input.
+  Decision window: 2 business days for standard review.
+
+Step 4 — Formal Approval
+  VP Operations issues written approval or rejection with reasons.
+
+Step 5 — Communication
+  Post-approval, Communications / Product team issues customer notification within 24 hours.
+
+Step 6 — Audit Record
+  Project Manager updates the project record and audit trail with the approved change.
+
+3.2 EMERGENCY APPROVAL PROCESS
+
+For critical situations where a 2-business-day review is not feasible:
+  - Engineering Lead or VP Operations may invoke Emergency Protocol
+  - Emergency approval requires verbal authorization from VP Operations
+  - Written ratification required within 24 hours
+  - Automatic escalation to Executive Leadership Committee within 3 business days
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4. CUSTOMER COMMUNICATION REQUIREMENTS
+
+4.1 NOTIFICATION CONTENT
+
+All external launch date change notifications must include:
+  - Original committed date
+  - New proposed date
+  - Reason for change (summary, non-technical)
+  - Customer impact assessment
+  - NovaCore point of contact for questions
+  - Any contractual implications
+
+4.2 NOTIFICATION CHANNELS
+
+Tier 1 Enterprise Customers (annual contract value > $500K): Direct call from VP/Director + written notice
+Tier 2 Enterprise Customers: Written notice (email from Account Manager)
+General Customers: Platform announcement + email notification
+
+4.3 NO PRE-APPROVAL COMMUNICATION
+
+Under no circumstances may any employee, contractor, or partner communicate a new launch date to external parties before Operations approval has been granted. Violation of this requirement will be treated as a policy breach and subject to HR review.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5. COMPLIANCE AND ENFORCEMENT
+
+5.1 POLICY BREACH
+
+Failure to comply with this policy may result in:
+  - Formal incident report to Executive Leadership Committee
+  - HR review for responsible parties
+  - Customer escalation management by VP Operations
+  - Remediation plan required within 5 business days
+
+5.2 AUDIT TRAIL
+
+All launch date changes must be recorded in the Project Management system with:
+  - Date of change decision
+  - Approving authority
+  - Approval reference number
+  - Customer notification date and method
+
+5.3 REPORTING
+
+VP Operations will report launch date change incidents (including policy exceptions) to the Executive Leadership Committee on a quarterly basis.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+6. RELATED POLICIES AND DOCUMENTS
+
+  - OPS-GOV-RELEASE-002: Production Release Approval Policy
+  - OPS-GOV-RISK-001: Risk Escalation Policy
+  - HR-POL-003: Employee Conduct and Policy Compliance
+  - LEGAL-TMPL-001: Customer Contract Amendment Template
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+7. REVISION HISTORY
+
+Version 3.2 (Jan 15, 2026): Added emergency approval protocol; updated Tier 1 customer thresholds.
+Version 3.1 (Jul 1, 2025): Added 14-day minimum notice requirement following Q2 customer escalation.
+Version 3.0 (Jan 15, 2025): Major revision to add dual-requirement clause.
+Version 2.0 (Jan 15, 2024): Added Operations approval requirement.
+Version 1.0 (Jan 15, 2023): Initial policy.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+APPROVED BY:
+
+Sarah Chen, VP Operations — January 15, 2026
+Rohan Mehta, CEO — January 15, 2026
+Lisa Tan, General Counsel — January 15, 2026
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+END OF POLICY DOCUMENT
+Policy Reference: OPS-GOV-LAUNCH-001 v3.2

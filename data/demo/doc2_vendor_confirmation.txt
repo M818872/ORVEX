@@ -1,0 +1,31 @@
+MERIDIAN FINANCIAL SYSTEMS INC.
+PARTNER ALLIANCE FORMAL CONFIRMATION
+Date: September 16, 2026
+To: Priya Sharma (Procurement Manager, NovaCore Technologies)
+CC: Daniel Okafor (Engineering Lead), Sarah Chen (VP Operations)
+From: Arthur Vance (VP Global Technology Partnerships, Meridian Financial Systems)
+Subject: Formal Confirmation — Meridian Payments v3 API Delivery Schedule for NovaCore Edge Platform
+
+Dear Priya,
+
+Following our joint review meeting on September 15, Meridian Financial Systems hereby confirms the delivery commitment for the Meridian Payments v3 Core API integration package:
+
+1. CONFIRMED DELIVERY DATE:
+   - Target Release: October 14, 2026, 06:00 UTC.
+   - Endpoint: v3.2-enterprise-billing with Mutual TLS and multi-currency settlement.
+
+2. STATUS & HEALTH:
+   - Dependency Health: 🟢 HEALTHY / ON SCHEDULE.
+   - Documentation & SDK: Staged for final partner verification.
+   - Technical Sandbox: Available for test token exchange.
+
+3. COMMITMENT LEVEL:
+   - This delivery is covered under Master Services Agreement SLA § 8.4.
+   - Meridian technical support will be on standby throughout October 14 to assist Daniel Okafor's team during same-day integration testing.
+
+We look forward to powering the billing infrastructure for NovaCore Edge Platform's launch on October 15.
+
+Sincerely,
+Arthur Vance
+VP Global Technology Partnerships
+Meridian Financial Systems Inc.

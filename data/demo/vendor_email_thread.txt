@@ -1,0 +1,130 @@
+------- FORWARDED EMAIL THREAD — CONFIDENTIAL -------
+
+FROM: James Whitmore <j.whitmore@meridianpayments.com>
+TO: Priya Sharma <p.sharma@novacore.tech>
+CC: Derek Lau <d.lau@meridianpayments.com>; Priya Sharma <p.sharma@novacore.tech>
+DATE: September 19, 2026 — 4:47 PM
+SUBJECT: RE: URGENT: Apex Platform API Integration — Authentication Protocol Discrepancy
+
+Priya,
+
+Thank you for your patience on this. I've escalated your case to our integration support team and spoken directly with our API architecture lead, Derek Lau (cc'd here).
+
+Derek's assessment is below. To summarize our position:
+
+The discrepancy in the v3 authentication protocol documentation was introduced during our Q2 documentation update. We acknowledge this is an error on our end. The production API currently uses the v2.8 HMAC-SHA256 signature format, not the v3 bearer-token format described in the updated documentation.
+
+Our internal engineering team is currently working on two parallel tracks:
+1. Updating the documentation to correctly describe the current v2.8 behavior
+2. Accelerating the v3 release to align with the documented behavior
+
+I want to be transparent with you: the API specification correction is an internal priority, but I cannot provide a guaranteed delivery date at this time. Our engineering team's current estimate is that the corrected specification and updated SDK will be available by approximately October 10. However, this estimate is subject to change depending on internal resource allocation and QA validation on our side.
+
+The October 10 estimate is not a contractual commitment. It is our best current estimate.
+
+I understand this creates a dependency risk for your Apex Platform launch. We take this seriously and are treating it as a priority.
+
+Please confirm receipt of this email. I will provide a formal update by September 24.
+
+Best regards,
+James Whitmore
+Director of Partner Integration
+Meridian Payments Ltd.
++44 20 7946 0912
+
+---
+
+FROM: Derek Lau <d.lau@meridianpayments.com>
+TO: James Whitmore <j.whitmore@meridianpayments.com>
+DATE: September 19, 2026 — 3:22 PM
+SUBJECT: FWD: Technical Assessment — NovaCore API Issue
+
+James,
+
+Technical assessment as requested:
+
+The issue NovaCore is experiencing is a documentation error. Their integration team is implementing against v3 bearer-token authentication (as documented), but our production environment requires v2.8 HMAC-SHA256. The production endpoint has not been updated.
+
+ETA for resolution: ~October 10 (internal estimate only — not for external commitment).
+Confidence: Medium. There are two pending items from our security team that could push this.
+
+NovaCore should plan for the possibility the delivery date slips to October 15–18 if security review is delayed.
+
+Recommended temporary workaround: NovaCore could implement v2.8 authentication temporarily, but this would require their team to build against a deprecated API and re-migrate when v3 goes live.
+
+Regards,
+Derek Lau
+Senior API Architect
+Meridian Payments Ltd.
+
+---
+
+FROM: Priya Sharma <p.sharma@novacore.tech>
+TO: James Whitmore <j.whitmore@meridianpayments.com>
+DATE: September 18, 2026 — 9:14 AM
+SUBJECT: URGENT: Apex Platform API Integration — Authentication Protocol Discrepancy
+
+James,
+
+I'm writing as a formal escalation on behalf of NovaCore Technologies regarding a critical integration issue that is blocking our planned product launch.
+
+Our Engineering team has been implementing your Meridian Payments API v3 according to the documentation provided in our integration package (Document Ref: MPL-INT-2026-Q2-003). We have discovered that the authentication protocol described in the documentation does not match the behavior of the production API endpoint.
+
+Specifically:
+- Documentation states: v3 Bearer Token Authentication (OAuth 2.0 flow)
+- Production endpoint requires: v2.8 HMAC-SHA256 signature authentication
+
+Our current integration build is approximately 80% complete based on the documented v3 specification. This discrepancy means our integration will not work against your production environment without significant rework.
+
+This is a launch-blocking issue. Our Apex Platform launch date is currently scheduled for October 1, 2026. The API integration is a hard dependency for enterprise customer billing — without it, we cannot serve approximately 40% of our contracted enterprise customer base.
+
+We require:
+1. Confirmation of which authentication protocol is correct for production
+2. Corrected API documentation / specification
+3. A firm delivery timeline for the corrected materials
+4. Clarity on whether any additional costs are associated with this delay
+
+I am available for an emergency call at any time. Please treat this as Priority 1.
+
+Regards,
+Priya Sharma
+Procurement & Vendor Relations Manager
+NovaCore Technologies
+p.sharma@novacore.tech | +91 98765 43210
+
+---
+
+FROM: James Whitmore <j.whitmore@meridianpayments.com>
+TO: Priya Sharma <p.sharma@novacore.tech>
+DATE: September 20, 2026 — 11:30 AM
+SUBJECT: RE: URGENT: Apex Platform API Integration — Update Following Executive Call
+
+Priya,
+
+Following our executive call this morning, I can confirm the following:
+
+1. ACKNOWLEDGMENT: Meridian formally acknowledges the API documentation error is our responsibility.
+
+2. TIMELINE: Our best estimate remains approximately October 10 for the corrected API specification and SDK. This is NOT a firm contractual commitment. There are two internal dependencies that could affect this timeline:
+   - Security team review of the v3 authentication implementation
+   - QA validation of the corrected documentation
+
+3. ADDITIONAL COSTS: Regarding your question about additional charges — I need to confirm internally whether the delay creates any contractual cost implications. I will revert by September 23.
+
+4. RISK CAVEAT: I want to be explicit: if our security review encounters complications, the delivery could slip to October 15–18. NovaCore should plan accordingly. The API confirmation is still pending internal approvals.
+
+5. ESCALATION PATH: If this becomes a contractual matter, please contact our legal team at legal@meridianpayments.com.
+
+We are committed to supporting your launch. Our integration team will be available for a technical session with your Engineers as soon as the specification is ready.
+
+Best regards,
+James Whitmore
+Director of Partner Integration
+Meridian Payments Ltd.
+
+---
+
+END OF FORWARDED EMAIL THREAD
+Compiled by: Priya Sharma
+Purpose: Vendor dependency documentation for project record
+Date compiled: September 20, 2026

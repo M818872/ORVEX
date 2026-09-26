@@ -1,0 +1,29 @@
+MERIDIAN FINANCIAL SYSTEMS INC.
+URGENT PARTNER ADVISORY — SCHEDULE REVISION NOTICE
+Date: September 22, 2026, 09:15 UTC
+Priority: HIGH / URGENT
+To: Priya Sharma (Procurement Manager, NovaCore Technologies)
+CC: Daniel Okafor (Engineering Lead), Sarah Chen (VP Operations)
+From: Arthur Vance (VP Global Technology Partnerships, Meridian Financial Systems)
+Subject: URGENT NOTICE: Meridian Payments v3 API Delivery Rescheduled to October 18, 2026
+
+Dear Priya, Daniel, and Sarah,
+
+We regret to formally notify NovaCore Technologies that due to an unexpected cryptographic validation failure discovered during our final security certification audit, the delivery of the Meridian Payments v3 Core API integration has been delayed.
+
+REVISED SCHEDULE:
+- Previous Confirmed Delivery: October 14, 2026
+- New Expected Delivery Date: October 18, 2026 (09:00 UTC)
+- Total Schedule Slip: +4 calendar days
+
+IMPACT ON INTEGRATION:
+The API integration delivery has been delayed and is now expected on October 18. Our technical documentation and sandbox endpoints are undergoing remediation and cannot be released into external production partner environments before October 18.
+
+We recognize that NovaCore Technologies had scheduled the production launch of the NovaCore Edge Platform for October 15, 2026. We sincerely apologize for the operational disruption and are committing round-the-clock technical onboarding engineering beginning October 18 to minimize your team's subsequent integration timeline.
+
+Please confirm receipt of this schedule notice.
+
+Sincerely,
+Arthur Vance
+VP Global Technology Partnerships
+Meridian Financial Systems Inc.

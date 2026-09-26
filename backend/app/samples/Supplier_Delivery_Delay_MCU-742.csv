@@ -1,0 +1,2 @@
+Supplier,Material,PartNumber,OriginalETA,NewETA,DelayDays,Quantity,Reason,Status
+MicroTech Components,MCU-742,MCU-742-32BIT,2026-10-12,2026-10-17,5,1500,Logistics disruption during air freight consolidation in Singapore,Delayed

@@ -1,0 +1,30 @@
+NOVACORE TECHNOLOGIES GOVERNANCE POLICY
+Policy Reference: OPS-GOV-001
+Title: Production Product Launch Governance & Customer Notice Requirements
+Version: 4.1
+Effective Date: January 1, 2026
+Policy Authority: Vice President of Operations & Compliance Oversight Committee
+
+1. PURPOSE & APPLICABILITY:
+This policy establishes mandatory operational governance standards for all production software releases and major platform announcements at NovaCore Technologies, specifically governing the NovaCore Edge Platform.
+
+2. MANDATORY ADVANCE CUSTOMER NOTICE:
+Section 2.1 — Notice Window Requirement:
+Any production launch date that has been publicly announced or externally committed to enterprise clients requires a MINIMUM OF 14 CALENDAR DAYS advance notification prior to the scheduled launch date.
+- Original launch date: October 15, 2026.
+- Mandatory notice cutoff date: October 1, 2026 (Satisfied).
+
+Section 2.2 — Schedule Modification Notice Rules:
+If a scheduled production launch is postponed or rescheduled after external notification:
+(a) Written formal notice must be sent to all contracted enterprise accounts at least 7 calendar days before any new launch date.
+(b) A launch date change cannot be announced without explicit written authorization from the VP of Operations (Sarah Chen).
+
+3. GOVERNANCE APPROVAL GATES:
+Prior to production traffic cutover, the following mandatory sign-offs must be logged in the NovaCore audit system:
+- Gate G-1: Engineering Lead architectural sign-off (Daniel Okafor)
+- Gate G-2: QA Director verification sign-off (Tom Hendricks)
+- Gate G-3: Finance Director budget and revenue reconciliation sign-off (Marcus Webb)
+- Gate G-4: Executive VP Operations final deployment authorization (Sarah Chen)
+
+4. POLICY EXCEPTION CLAUSE:
+In the event of an unforeseen external vendor failure or upstream dependency outage, the VP of Operations possesses sole discretion to invoke an Emergency Policy Exception (Section 4.3), permitting a schedule realignment provided all enterprise accounts receive personalized account manager briefings within 24 hours of decision confirmation.

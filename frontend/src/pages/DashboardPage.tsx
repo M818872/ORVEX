@@ -1,0 +1,1122 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  AlertTriangle, RefreshCw, Zap,
+  Activity, ArrowRight, ShieldAlert, Cpu,
+  Clock, CheckCircle2, UploadCloud, FileText,
+  Mail, Sparkles, Layers
+} from 'lucide-react';
+import {
+  getDashboard,
+  resetBaseline,
+  uploadSupplierDocument,
+  injectSampleDocument,
+  type InboxUploadResponse
+} from '../api/client';
+import { useStage } from '../context/StageContext';
+
+type AnalysisState = 'idle' | 'running' | 'complete';
+
+const DashboardPage: React.FC = () => {
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { setStage, markCompleted, resetStages } = useStage();
+
+  const [analysisState, setAnalysisState] = useState<AnalysisState>('idle');
+  const [pipelineStep, setPipelineStep] = useState<number>(0);
+  const [activeFileName, setActiveFileName] = useState<string>('messy_supplier_delay_MCU742.eml');
+  const [pipelineData, setPipelineData] = useState<InboxUploadResponse | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Queries
+  const { data: dashboard } = useQuery({
+    queryKey: ['manufacturing_dashboard'],
+    queryFn: getDashboard,
+    refetchInterval: analysisState === 'running' ? false : 4000,
+  });
+
+  const isServerHealthy = (dashboard?.status ?? 'healthy') === 'healthy';
+  const hasServerDisruption = !isServerHealthy && !!dashboard?.active_disruption;
+
+  // Sync state if already disrupted from prior action in this session
+  useEffect(() => {
+    if (hasServerDisruption && analysisState === 'idle') {
+      setAnalysisState('complete');
+      setPipelineStep(6);
+    } else if (isServerHealthy && analysisState === 'complete') {
+      setAnalysisState('idle');
+      setPipelineStep(0);
+      setPipelineData(null);
+    }
+  }, [hasServerDisruption, isServerHealthy, analysisState]);
+
+  // Mutations
+  const uploadMutation = useMutation({
+    mutationFn: (file: File) => uploadSupplierDocument(file),
+    onSuccess: (data) => {
+      setPipelineData(data);
+    },
+  });
+
+  const sampleMutation = useMutation({
+    mutationFn: (sampleId: string) => injectSampleDocument(sampleId),
+    onSuccess: (data) => {
+      setPipelineData(data);
+    },
+  });
+
+  const resetMutation = useMutation({
+    mutationFn: resetBaseline,
+    onSuccess: () => {
+      setAnalysisState('idle');
+      setPipelineStep(0);
+      setPipelineData(null);
+      resetStages();
+      qc.invalidateQueries();
+    },
+  });
+
+  // Sequential progression runner
+  const startAnalysisFlow = (fileName: string, mutationPromise: () => void) => {
+    setActiveFileName(fileName);
+    setAnalysisState('running');
+    setPipelineStep(1);
+    setStage('UNDERSTAND');
+    markCompleted('INPUT');
+
+    mutationPromise();
+
+    // Controlled realistic timeline for demo presentation quality
+    const timers = [
+      setTimeout(() => {
+        setPipelineStep(2);
+        setStage('UNDERSTAND');
+      }, 1000),
+      setTimeout(() => {
+        setPipelineStep(3);
+        setStage('CONNECT');
+        markCompleted('UNDERSTAND');
+      }, 2200),
+      setTimeout(() => {
+        setPipelineStep(4);
+        setStage('IMPACT');
+        markCompleted('CONNECT');
+      }, 3400),
+      setTimeout(() => {
+        setPipelineStep(5);
+        setStage('IMPACT');
+      }, 4600),
+      setTimeout(() => {
+        setPipelineStep(6);
+        setStage('RECOVER');
+        markCompleted('IMPACT');
+      }, 5800),
+      setTimeout(() => {
+        setAnalysisState('complete');
+        qc.invalidateQueries();
+      }, 7000),
+    ];
+
+    return () => timers.forEach(clearTimeout);
+  };
+
+  const handleFileDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      startAnalysisFlow(file.name, () => uploadMutation.mutate(file));
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      startAnalysisFlow(file.name, () => uploadMutation.mutate(file));
+    }
+  };
+
+  const handleRunDemoScenario = () => {
+    startAnalysisFlow('messy_supplier_delay_MCU742.eml', () =>
+      sampleMutation.mutate('messy_email')
+    );
+  };
+
+  // Keep available for internal automated testing/dev console without exposing any UI button
+  useEffect(() => {
+    (window as unknown as { __runDemoScenario?: () => void }).__runDemoScenario = handleRunDemoScenario;
+    return () => {
+      delete (window as unknown as { __runDemoScenario?: () => void }).__runDemoScenario;
+    };
+  }, [handleRunDemoScenario]);
+
+  const isMutating = uploadMutation.isPending || sampleMutation.isPending || resetMutation.isPending;
+
+  // Determine displayed metrics based on state:
+  // If idle or running before completion, show healthy baseline!
+  const showDisruption = analysisState === 'complete';
+  const healthScore = showDisruption ? (dashboard?.production_health ?? 78) : 94;
+  const atRiskOrders = showDisruption ? (dashboard?.at_risk_orders ?? 3) : 0;
+  const materialRisks = showDisruption ? (dashboard?.material_risks ?? 1) : 0;
+  const supplierAlerts = showDisruption ? (dashboard?.supplier_alerts ?? 1) : 0;
+  const customerCommitmentsAtRisk = showDisruption ? (dashboard?.customer_commitments_at_risk ?? 1) : 0;
+  const disruption = dashboard?.active_disruption;
+
+  return (
+    <div style={{ maxWidth: 1300, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {/* ── Top Header: ORVEX Operational Identity & Production Health ── */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 16,
+        padding: '20px 24px',
+        background: '#ffffff',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--border-default)',
+        boxShadow: 'var(--shadow-card)'
+      }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: 0 }}>
+              ORVEX
+            </h1>
+            <span style={{
+              fontSize: 12,
+              fontWeight: 700,
+              padding: '3px 10px',
+              borderRadius: 9999,
+              background: showDisruption ? 'var(--status-red-bg)' : 'var(--status-green-bg)',
+              color: showDisruption ? 'var(--status-red)' : 'var(--status-green)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6
+            }}>
+              <span style={{
+                width: 7,
+                height: 7,
+                borderRadius: '50%',
+                background: showDisruption ? 'var(--status-red)' : 'var(--status-green)'
+              }} />
+              {showDisruption ? 'Production Health: 78% (At Risk)' : 'Production Health: 94% (Optimal)'}
+            </span>
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>
+            <strong style={{ color: 'var(--text-primary)' }}>Production Disruption & Recovery Copilot</strong> · NovaCore Electronics · Plant #4 Operations
+          </div>
+        </div>
+
+        {/* Subtle developer utility control (unobtrusive reset) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            id="btn-reset-baseline"
+            onClick={() => resetMutation.mutate()}
+            disabled={isMutating}
+            title="Reset baseline to 94% optimal"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              padding: 6,
+              borderRadius: 4,
+              opacity: 0.35,
+              transition: 'opacity 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.35')}
+          >
+            <RefreshCw size={13} className={resetMutation.isPending ? 'spin' : ''} />
+          </button>
+        </div>
+      </div>
+
+      {/* ── Operational Health Stat Cards (Dynamic based on state) ── */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+        gap: 16
+      }}>
+        {/* Production Health */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+              Production Health
+            </span>
+            <Activity size={18} style={{ color: showDisruption ? 'var(--status-red)' : 'var(--status-green)' }} />
+          </div>
+          <div style={{ margin: '14px 0 6px 0', display: 'flex', alignItems: 'baseline', gap: 8 }}>
+            <span style={{
+              fontSize: 34,
+              fontWeight: 800,
+              fontFamily: 'var(--font-mono)',
+              color: showDisruption ? 'var(--status-red)' : 'var(--status-green)'
+            }}>
+              {healthScore}%
+            </span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: showDisruption ? 'var(--status-red)' : 'var(--status-green)' }}>
+              {showDisruption ? '↓ -16% Slip' : 'Optimal'}
+            </span>
+          </div>
+          <div style={{ height: 5, background: 'var(--bg-elevated)', borderRadius: 9999, overflow: 'hidden' }}>
+            <div style={{
+              height: '100%',
+              width: `${healthScore}%`,
+              background: showDisruption ? 'var(--status-red)' : 'var(--status-green)',
+              transition: 'all 0.5s ease'
+            }} />
+          </div>
+        </div>
+
+        {/* At-Risk Orders */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+              At-Risk Orders
+            </span>
+            <AlertTriangle size={18} style={{ color: showDisruption ? 'var(--status-red)' : 'var(--text-muted)' }} />
+          </div>
+          <div style={{ margin: '14px 0 6px 0' }}>
+            <span style={{
+              fontSize: 34,
+              fontWeight: 800,
+              color: showDisruption ? 'var(--status-red)' : 'var(--text-primary)'
+            }}>
+              {atRiskOrders}
+            </span>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            {showDisruption ? '3 SMT production batches delayed' : 'All production orders on schedule'}
+          </div>
+        </div>
+
+        {/* Material Risks */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+              Material Risks
+            </span>
+            <Cpu size={18} style={{ color: showDisruption ? 'var(--status-amber)' : 'var(--text-muted)' }} />
+          </div>
+          <div style={{ margin: '14px 0 6px 0' }}>
+            <span style={{
+              fontSize: 34,
+              fontWeight: 800,
+              color: showDisruption ? 'var(--status-amber)' : 'var(--text-primary)'
+            }}>
+              {materialRisks}
+            </span>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            {showDisruption ? 'MCU-742 stockout predicted' : '0 component shortages'}
+          </div>
+        </div>
+
+        {/* Supplier Alerts */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+              Supplier Alerts
+            </span>
+            <ShieldAlert size={18} style={{ color: showDisruption ? 'var(--status-red)' : 'var(--text-muted)' }} />
+          </div>
+          <div style={{ margin: '14px 0 6px 0' }}>
+            <span style={{
+              fontSize: 34,
+              fontWeight: 800,
+              color: showDisruption ? 'var(--status-red)' : 'var(--text-primary)'
+            }}>
+              {supplierAlerts}
+            </span>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            {showDisruption ? 'MicroTech Components ETA slip' : '0 inbound shipment delays'}
+          </div>
+        </div>
+
+        {/* Customer Commitments */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+              Customer Commitments
+            </span>
+            <Clock size={18} style={{ color: showDisruption ? 'var(--status-red)' : 'var(--text-muted)' }} />
+          </div>
+          <div style={{ margin: '14px 0 6px 0' }}>
+            <span style={{
+              fontSize: 34,
+              fontWeight: 800,
+              color: showDisruption ? 'var(--status-red)' : 'var(--text-primary)'
+            }}>
+              {customerCommitmentsAtRisk}
+            </span>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            {showDisruption ? 'Customer C8821 delivery at risk' : '0 SLA breaches pending'}
+          </div>
+        </div>
+      </div>
+
+      {/* ── STATE 1: INITIAL BASELINE — LARGE DROP ZONE ── */}
+      {analysisState === 'idle' && (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16
+        }}>
+          {/* Main Hero Title */}
+          <div style={{
+            background: '#ffffff',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--border-default)',
+            padding: '24px 28px',
+            boxShadow: 'var(--shadow-card)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6
+          }}>
+            <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--brand-primary)', letterSpacing: '0.04em' }}>
+              STEP 1: GIVE ORVEX A NEW SIGNAL
+            </span>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)' }}>
+              Drop an operational update.
+            </h2>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              Upload a supplier email, shipment update, or operational document. ORVEX will analyze it and trace its impact across production.
+            </p>
+          </div>
+
+          {/* Large Drop Zone */}
+          <div
+            id="drop-zone-operational-update"
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleFileDrop}
+            style={{
+              background: isDragging ? 'var(--brand-light)' : '#ffffff',
+              border: isDragging ? '2.5px dashed var(--brand-primary)' : '2px dashed var(--border-default)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '48px 32px',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 14,
+              boxShadow: 'var(--shadow-card)',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer'
+            }}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              style={{ display: 'none' }}
+              accept=".eml,.txt,.pdf,.docx,.csv,.xlsx"
+            />
+
+            <div style={{
+              width: 56,
+              height: 56,
+              borderRadius: '50%',
+              background: 'var(--brand-light)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--brand-primary)'
+            }}>
+              <UploadCloud size={28} />
+            </div>
+
+            <div>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)' }}>
+                DROP OPERATIONAL UPDATE HERE
+              </h3>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>
+                Drag & drop email or document to trigger autonomous disruption discovery
+              </p>
+            </div>
+
+            {/* Format Pill Badges */}
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+              {['.EML', '.TXT', '.PDF', '.DOCX', '.CSV', '.XLSX'].map((fmt) => (
+                <span
+                  key={fmt}
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    padding: '3px 8px',
+                    borderRadius: 4,
+                    background: 'var(--bg-elevated)',
+                    border: '1px solid var(--border-default)',
+                    color: 'var(--text-muted)'
+                  }}
+                >
+                  {fmt}
+                </span>
+              ))}
+            </div>
+
+            {/* Action Buttons inside Drop Zone — Single Primary Button */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }} onClick={(e) => e.stopPropagation()}>
+              <button
+                id="btn-browse-files"
+                className="btn btn-primary"
+                onClick={() => fileInputRef.current?.click()}
+                style={{ fontWeight: 700, padding: '9px 24px', fontSize: 13 }}
+              >
+                Browse Files
+              </button>
+            </div>
+          </div>
+
+          {/* Connected Enterprise Data Baseline */}
+          <div style={{
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border-default)',
+            borderRadius: 'var(--radius-md)',
+            padding: '12px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 10,
+            fontSize: 12
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, color: 'var(--text-secondary)' }}>
+              <span style={{ letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>CONNECTED DATA:</span>
+              <span style={{ color: 'var(--status-green)', display: 'inline-flex', alignItems: 'center', gap: 3 }}>✓ Suppliers</span>
+              <span style={{ color: 'var(--status-green)', display: 'inline-flex', alignItems: 'center', gap: 3 }}>✓ BOM</span>
+              <span style={{ color: 'var(--status-green)', display: 'inline-flex', alignItems: 'center', gap: 3 }}>✓ Inventory</span>
+              <span style={{ color: 'var(--status-green)', display: 'inline-flex', alignItems: 'center', gap: 3 }}>✓ Production Orders</span>
+              <span style={{ color: 'var(--status-green)', display: 'inline-flex', alignItems: 'center', gap: 3 }}>✓ Customer Commitments</span>
+            </div>
+
+            <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
+              Company operational context is already connected.
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* ── STATE 2: AI ANALYSIS PIPELINE PROGRESSION ── */}
+      {analysisState === 'running' && (
+        <div style={{
+          background: '#ffffff',
+          borderRadius: 'var(--radius-lg)',
+          border: '1.5px solid var(--brand-primary)',
+          boxShadow: '0 8px 30px rgba(37, 99, 235, 0.1)',
+          padding: '28px 32px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 20
+        }}>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{
+                width: 42,
+                height: 42,
+                borderRadius: 10,
+                background: 'var(--brand-light)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--brand-primary)'
+              }}>
+                <Sparkles size={24} className="spin" />
+              </div>
+              <div>
+                <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--brand-primary)', letterSpacing: '0.04em' }}>
+                  ORVEX IS ANALYZING THE OPERATIONAL SIGNAL
+                </span>
+                <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', marginTop: 2 }}>
+                  ORVEX Intelligence Pipeline
+                </h2>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 12px',
+              borderRadius: 6,
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border-default)',
+              fontSize: 12,
+              fontFamily: 'var(--font-mono)',
+              fontWeight: 700,
+              color: 'var(--brand-primary)'
+            }}>
+              <Mail size={14} />
+              {activeFileName}
+            </div>
+          </div>
+
+          {/* Sequential 6-Stage Progress Cards */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: 12
+          }}>
+            {/* STAGE 1: READ */}
+            <div style={{
+              padding: '16px',
+              borderRadius: 'var(--radius-md)',
+              border: pipelineStep >= 1 ? '1px solid var(--brand-primary)' : '1px solid var(--border-default)',
+              background: pipelineStep >= 1 ? 'var(--bg-card)' : 'var(--bg-elevated)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 6,
+              transition: 'all 0.3s ease'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: pipelineStep >= 1 ? 'var(--brand-primary)' : 'var(--text-muted)' }}>
+                  1. READ
+                </span>
+                {pipelineStep >= 1 && <CheckCircle2 size={14} style={{ color: 'var(--status-green)' }} />}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+                Reading communication
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                {pipelineStep >= 1 ? '✓ Supplier email parsed' : 'Waiting...'}
+              </div>
+            </div>
+
+            {/* STAGE 2: UNDERSTAND */}
+            <div style={{
+              padding: '16px',
+              borderRadius: 'var(--radius-md)',
+              border: pipelineStep >= 2 ? '1px solid var(--brand-primary)' : '1px solid var(--border-default)',
+              background: pipelineStep >= 2 ? 'var(--bg-card)' : 'var(--bg-elevated)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 6,
+              transition: 'all 0.3s ease'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: pipelineStep >= 2 ? 'var(--brand-primary)' : 'var(--text-muted)' }}>
+                  2. UNDERSTAND
+                </span>
+                {pipelineStep >= 2 && <CheckCircle2 size={14} style={{ color: 'var(--status-green)' }} />}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+                Extracting changes
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                {pipelineStep >= 2 ? '✓ Disruption: +5 days' : 'Waiting...'}
+              </div>
+            </div>
+
+            {/* STAGE 3: CONNECT */}
+            <div style={{
+              padding: '16px',
+              borderRadius: 'var(--radius-md)',
+              border: pipelineStep >= 3 ? '1px solid var(--brand-primary)' : '1px solid var(--border-default)',
+              background: pipelineStep >= 3 ? 'var(--bg-card)' : 'var(--bg-elevated)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 6,
+              transition: 'all 0.3s ease'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: pipelineStep >= 3 ? 'var(--brand-primary)' : 'var(--text-muted)' }}>
+                  3. CONNECT
+                </span>
+                {pipelineStep >= 3 && <CheckCircle2 size={14} style={{ color: 'var(--status-green)' }} />}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+                Matching records
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                {pipelineStep >= 3 ? '✓ Supplier & MCU matched' : 'Waiting...'}
+              </div>
+            </div>
+
+            {/* STAGE 4: TRACE */}
+            <div style={{
+              padding: '16px',
+              borderRadius: 'var(--radius-md)',
+              border: pipelineStep >= 4 ? '1px solid var(--brand-primary)' : '1px solid var(--border-default)',
+              background: pipelineStep >= 4 ? 'var(--bg-card)' : 'var(--bg-elevated)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 6,
+              transition: 'all 0.3s ease'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: pipelineStep >= 4 ? 'var(--brand-primary)' : 'var(--text-muted)' }}>
+                  4. TRACE
+                </span>
+                {pipelineStep >= 4 && <CheckCircle2 size={14} style={{ color: 'var(--status-green)' }} />}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+                Following BOM
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                {pipelineStep >= 4 ? '✓ 3 orders exposed' : 'Waiting...'}
+              </div>
+            </div>
+
+            {/* STAGE 5: IMPACT */}
+            <div style={{
+              padding: '16px',
+              borderRadius: 'var(--radius-md)',
+              border: pipelineStep >= 5 ? '1px solid var(--brand-primary)' : '1px solid var(--border-default)',
+              background: pipelineStep >= 5 ? 'var(--bg-card)' : 'var(--bg-elevated)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 6,
+              transition: 'all 0.3s ease'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: pipelineStep >= 5 ? 'var(--brand-primary)' : 'var(--text-muted)' }}>
+                  5. IMPACT
+                </span>
+                {pipelineStep >= 5 && <CheckCircle2 size={14} style={{ color: 'var(--status-green)' }} />}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+                Checking commitments
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                {pipelineStep >= 5 ? '✓ 500 units at risk' : 'Waiting...'}
+              </div>
+            </div>
+
+            {/* STAGE 6: RECOVER */}
+            <div style={{
+              padding: '16px',
+              borderRadius: 'var(--radius-md)',
+              border: pipelineStep >= 6 ? '1px solid var(--brand-primary)' : '1px solid var(--border-default)',
+              background: pipelineStep >= 6 ? 'var(--bg-card)' : 'var(--bg-elevated)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 6,
+              transition: 'all 0.3s ease'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: pipelineStep >= 6 ? 'var(--brand-primary)' : 'var(--text-muted)' }}>
+                  6. RECOVER
+                </span>
+                {pipelineStep >= 6 && <CheckCircle2 size={14} style={{ color: 'var(--status-green)' }} />}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+                Generating response
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                {pipelineStep >= 6 ? '✓ 3 recovery paths ready' : 'Waiting...'}
+              </div>
+            </div>
+          </div>
+
+          {/* Live Progress Chips Revelation */}
+          <div style={{
+            background: 'var(--bg-elevated)',
+            borderRadius: 'var(--radius-md)',
+            padding: '16px',
+            border: '1px solid var(--border-default)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)' }}>
+              LIVE EXTRACTION & DISCOVERY FEED:
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {pipelineStep >= 2 && (
+                <>
+                  <span style={{ padding: '4px 10px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 4, fontSize: 12, color: '#1d4ed8', fontWeight: 600 }}>
+                    Supplier: {pipelineData?.extracted_data?.supplier_name || 'MicroTech Components'}
+                  </span>
+                  <span style={{ padding: '4px 10px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 4, fontSize: 12, color: '#1d4ed8', fontWeight: 600 }}>
+                    PO: {pipelineData?.extracted_data?.po_number || 'PO-8842'}
+                  </span>
+                  <span style={{ padding: '4px 10px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 4, fontSize: 12, color: '#1d4ed8', fontWeight: 600 }}>
+                    Material: {pipelineData?.extracted_data?.material_name || 'MCU-742'}
+                  </span>
+                  <span style={{ padding: '4px 10px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 4, fontSize: 12, color: '#b91c1c', fontWeight: 700 }}>
+                    Old ETA: {pipelineData?.extracted_data?.old_eta || 'Oct 12'} → New ETA: {pipelineData?.extracted_data?.new_eta || 'Oct 17'} (+{pipelineData?.extracted_data?.delay_days || 5}d)
+                  </span>
+                </>
+              )}
+
+              {pipelineStep >= 3 && (
+                <>
+                  <span style={{ padding: '4px 10px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 4, fontSize: 12, color: '#15803d', fontWeight: 600 }}>
+                    ✓ Matched: Material Master MCU-742-32BIT
+                  </span>
+                  <span style={{ padding: '4px 10px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 4, fontSize: 12, color: '#15803d', fontWeight: 600 }}>
+                    ✓ Buffer: 50 on-hand (Deficit: 450 units)
+                  </span>
+                  <span style={{ padding: '4px 10px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 4, fontSize: 12, color: '#15803d', fontWeight: 600 }}>
+                    ✓ BOM Product: NovaCore AX42 Controller
+                  </span>
+                </>
+              )}
+
+              {pipelineStep >= 4 && (
+                <>
+                  <span style={{ padding: '4px 10px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 4, fontSize: 12, color: '#c2410c', fontWeight: 600 }}>
+                    ⚠ Traced: Production Order #1042 (SMT Line 2)
+                  </span>
+                  <span style={{ padding: '4px 10px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 4, fontSize: 12, color: '#c2410c', fontWeight: 600 }}>
+                    ⚠ 3 production orders exposed in assembly line
+                  </span>
+                </>
+              )}
+
+              {pipelineStep >= 5 && (
+                <>
+                  <span style={{ padding: '4px 10px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 4, fontSize: 12, color: '#b91c1c', fontWeight: 700 }}>
+                    🔴 Customer C8821: 500 critical units at risk (Due Oct 20)
+                  </span>
+                </>
+              )}
+
+              {pipelineStep >= 6 && (
+                <>
+                  <span style={{ padding: '4px 10px', background: '#f5f3ff', border: '1px solid #ddd6fe', borderRadius: 4, fontSize: 12, color: '#6d28d9', fontWeight: 700 }}>
+                    💡 3 recovery scenarios generated (Option A Expedite Recommended)
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── STATE 3: DISRUPTION DETECTED (AFTER ANALYSIS COMPLETES) ── */}
+      {showDisruption && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Analysis Complete Transition Banner */}
+          <div style={{
+            background: '#fef2f2',
+            border: '1.5px solid var(--status-red)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '24px 28px',
+            boxShadow: '0 4px 20px rgba(220, 38, 38, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{
+                  background: 'var(--status-red)',
+                  color: '#ffffff',
+                  padding: '4px 10px',
+                  borderRadius: 4,
+                  fontWeight: 800,
+                  fontSize: 11,
+                  letterSpacing: '0.05em'
+                }}>
+                  HIGH PRIORITY
+                </span>
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                  Supplier: <strong style={{ color: 'var(--text-primary)' }}>{disruption?.supplier || 'MicroTech Components'} (STATUS: DELAYED)</strong>
+                </span>
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                  Component: <strong style={{ color: 'var(--text-primary)' }}>{disruption?.material || 'MCU-742'}</strong>
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  id="btn-investigate-disruption"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => navigate('/disruptions')}
+                  style={{ fontWeight: 700 }}
+                >
+                  Investigate Disruption
+                  <ArrowRight size={14} />
+                </button>
+                <button
+                  id="btn-goto-recovery"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => navigate('/recovery')}
+                  style={{ background: 'var(--status-green)', borderColor: 'var(--status-green)', fontWeight: 800 }}
+                >
+                  <Zap size={14} /> View Recovery Options
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)' }}>
+                Supplier delivery delayed: {disruption?.material || 'MCU-742'} (+{disruption?.delay_days || 5} days)
+              </h2>
+              <div style={{ fontSize: 14, color: 'var(--status-red)', fontWeight: 700, marginTop: 4 }}>
+                Potential impact: {disruption?.affected_units || 500} critical customer units at risk · 1 customer commitment
+              </div>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4, lineHeight: 1.5 }}>
+                Shipment PO-8842 originally expected on <strong>{disruption?.old_eta || 'October 12'}</strong> is now expected on <strong>{disruption?.new_eta || 'October 17'}</strong> ({disruption?.reason || 'Forwarder transit slip on international air freight'}).
+              </p>
+            </div>
+
+            {/* Metrics Bar */}
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 20,
+              padding: '12px 16px',
+              background: '#ffffff',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--border-danger)',
+              fontSize: 13
+            }}>
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Exposed Orders: </span>
+                <strong>3 Production Orders Exposed</strong>
+              </div>
+              <div style={{ width: 1, height: 16, background: 'var(--border-default)' }} />
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Customer Volume: </span>
+                <strong style={{ color: 'var(--status-red)' }}>500 Critical Customer Units at Risk</strong>
+              </div>
+              <div style={{ width: 1, height: 16, background: 'var(--border-default)' }} />
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Customer Commitment: </span>
+                <strong style={{ color: 'var(--status-red)' }}>Customer C8821 (Delivery: October 20)</strong>
+              </div>
+              <div style={{ width: 1, height: 16, background: 'var(--border-default)' }} />
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Assembly Lines: </span>
+                <strong>2 Production Lines (SMT Line 2 Primary)</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* ── LIVE IMPACT REVEAL: "What ORVEX Discovered" ── */}
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--brand-primary)', letterSpacing: '0.04em' }}>
+                  DISCOVERY GRAPH
+                </span>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Layers size={18} style={{ color: 'var(--brand-primary)' }} />
+                  What ORVEX discovered
+                </h3>
+              </div>
+              <span style={{
+                fontSize: 11,
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: 4,
+                background: 'var(--status-red-bg)',
+                color: 'var(--status-red)'
+              }}>
+                CRITICAL PATH IDENTIFIED
+              </span>
+            </div>
+
+            {/* Dependency chain with clear labels */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+              gap: 8,
+              alignItems: 'center',
+              padding: '16px',
+              background: 'var(--bg-elevated)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--border-default)'
+            }}>
+              {[
+                { label: 'MicroTech Components', tag: 'SOURCE', sub: 'Supplier delay', status: 'red' },
+                { label: 'MCU-742', tag: 'MATCHED', sub: 'Part #MCU-742-32BIT', status: 'red' },
+                { label: 'AX42 Controller', tag: 'TRACE', sub: 'BOM Dependency', status: 'red' },
+                { label: 'Production Orders', tag: 'EXPOSED', sub: 'Order #1042', status: 'red' },
+                { label: '500 Critical Units', tag: 'VOLUME', sub: 'SMT Line 2 batch', status: 'red' },
+                { label: 'Customer C8821', tag: 'TARGET', sub: 'Strategic account', status: 'red' },
+                { label: 'Oct 20 Commitment', tag: 'AT RISK', sub: 'Contractual SLA', status: 'red' },
+              ].map((node, i, arr) => (
+                <React.Fragment key={node.label}>
+                  <div style={{
+                    background: '#ffffff',
+                    border: '1.5px solid #fecaca',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '10px 8px',
+                    textAlign: 'center',
+                    boxShadow: 'var(--shadow-sm)'
+                  }}>
+                    <div style={{
+                      fontSize: 9,
+                      fontWeight: 800,
+                      color: 'var(--status-red)',
+                      letterSpacing: '0.04em',
+                      marginBottom: 2
+                    }}>
+                      {node.tag}
+                    </div>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-primary)' }}>
+                      {node.label}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>
+                      {node.sub}
+                    </div>
+                  </div>
+
+                  {i < arr.length - 1 && (
+                    <div style={{ textAlign: 'center', color: 'var(--status-red)', fontWeight: 800, fontSize: 13 }}>
+                      →
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+
+          {/* ── COMPACT EVIDENCE PANEL: "Evidence used by ORVEX" ── */}
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <FileText size={18} style={{ color: 'var(--brand-primary)' }} />
+              <div>
+                <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)' }}>
+                  Evidence used by ORVEX
+                </h3>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                  ORVEX verified these entities against connected manufacturing records
+                </span>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+              gap: 10,
+              padding: '12px 14px',
+              background: 'var(--bg-elevated)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--border-default)',
+              fontSize: 12
+            }}>
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>SOURCE: </span>
+                <strong style={{ fontFamily: 'var(--font-mono)' }}>{activeFileName}</strong>
+              </div>
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Extracted Supplier: </span>
+                <strong>MicroTech Components</strong>
+              </div>
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Extracted Component: </span>
+                <strong>MCU-742-32BIT</strong>
+              </div>
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Timeline Slip: </span>
+                <strong style={{ color: 'var(--status-red)' }}>Oct 12 → Oct 17 (+5 days)</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* ── RECOVERY ACTION PROMPT ── */}
+          <div style={{
+            background: '#ffffff',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--border-default)',
+            padding: '20px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 14
+          }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Sparkles size={16} style={{ color: 'var(--brand-primary)' }} />
+                <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--brand-primary)' }}>
+                  RECOVERY DECISION READY
+                </span>
+              </div>
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', marginTop: 2 }}>
+                Impact identified. Recovery options ready.
+              </h3>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
+                AI recommends <strong>Option A: Expedite Supplier</strong> to protect the October 20 customer delivery.
+              </p>
+            </div>
+
+            <button
+              id="btn-open-recovery-simulator"
+              className="btn btn-primary"
+              onClick={() => navigate('/recovery')}
+              style={{ background: 'var(--status-green)', borderColor: 'var(--status-green)', fontWeight: 800 }}
+            >
+              <Zap size={14} />
+              View Recovery Options
+              <ArrowRight size={14} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Connected Operational Activity Ledger ── */}
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-default)', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>
+              Operational Activity Ledger
+            </h3>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+              Chronological ledger of factory floor and logistics events
+            </span>
+          </div>
+          <button className="btn btn-ghost btn-sm" onClick={() => navigate('/audit')}>
+            View Full Audit Trail <ArrowRight size={13} />
+          </button>
+        </div>
+
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13 }}>
+          <thead>
+            <tr style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border-default)' }}>
+              <th style={{ padding: '12px 20px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', fontSize: 11, width: 120 }}>Time</th>
+              <th style={{ padding: '12px 20px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', fontSize: 11 }}>Event</th>
+              <th style={{ padding: '12px 20px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', fontSize: 11 }}>Source</th>
+              <th style={{ padding: '12px 20px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', fontSize: 11 }}>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(dashboard?.recent_events ?? []).slice(0, 5).map((ev) => (
+              <tr key={ev.id} style={{ borderBottom: '1px solid var(--border-default)' }}>
+                <td style={{ padding: '12px 20px', fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+                  {ev.timestamp}
+                </td>
+                <td style={{ padding: '12px 20px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                  {ev.event}
+                </td>
+                <td style={{ padding: '12px 20px' }}>
+                  <span style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: 4,
+                    background: ev.source_type === 'HUMAN' ? 'var(--brand-light)' : 'var(--bg-elevated)',
+                    color: ev.source_type === 'HUMAN' ? 'var(--brand-primary)' : 'var(--text-muted)'
+                  }}>
+                    {ev.source_type}
+                  </span>
+                </td>
+                <td style={{ padding: '12px 20px', color: 'var(--text-muted)', fontSize: 12 }}>
+                  {ev.details || '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default DashboardPage;

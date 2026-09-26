@@ -1,0 +1,14 @@
+From: logistics@microtechcomponents.com
+To: supplychain@novacore-electronics.com
+Date: October 12, 2026, 09:30 AM
+Subject: Supplier Delivery Delay — MCU-742
+
+Dear NovaCore Production Planning Team,
+
+We regret to inform you that due to a logistics disruption during air freight consolidation in Singapore, shipment PO-8842 containing 1,500 units of MCU-742 originally expected on October 12 is now expected on October 17.
+
+We understand this microcontroller is allocated for your high-priority production runs. Our shipping coordinator is monitoring the customs clearance at the hub. If expedited air cargo charter is required to advance arrival by 3-4 days, please notify our account manager immediately.
+
+Sincerely,
+MicroTech Components Logistics Dispatch Team
+Singapore Regional Hub
