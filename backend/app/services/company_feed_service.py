@@ -49,7 +49,9 @@ def get_company_feed_status(db: Session) -> Dict[str, Any]:
     - feed status
     - next event preview if pending
     """
-    # Check if there is already an active disruption in the database
+    # The feed is continuously alive, but the disruptive pitch event is gated
+    # behind an explicit DEMO_STARTED marker so the dashboard stays healthy
+    # until the presenter starts the scenario.
     active_disruption = (
         db.query(Disruption)
         .filter(Disruption.status == "active")
@@ -58,8 +60,25 @@ def get_company_feed_status(db: Session) -> Dict[str, Any]:
     )
     has_active_disruption = active_disruption is not None
 
-    pending_events = 0 if has_active_disruption else 1
-    next_event = None if has_active_disruption else CANONICAL_FEED_EVENT
+    demo_started = (
+        db.query(AuditLog)
+        .filter(AuditLog.event == "DEMO_STARTED")
+        .order_by(AuditLog.id.desc())
+        .first()
+    )
+    demo_reset = (
+        db.query(AuditLog)
+        .filter(AuditLog.event == "DEMO_RESET")
+        .order_by(AuditLog.id.desc())
+        .first()
+    )
+    demo_armed = bool(
+        demo_started
+        and (not demo_reset or demo_started.id > demo_reset.id)
+    )
+
+    pending_events = 1 if demo_armed and not has_active_disruption else 0
+    next_event = CANONICAL_FEED_EVENT if pending_events else None
 
     now = datetime.now()
     last_sync = now.strftime("%H:%M:%S")
@@ -71,6 +90,8 @@ def get_company_feed_status(db: Session) -> Dict[str, Any]:
         "last_sync": last_sync,
         "pending_events": pending_events,
         "note": "Synthetic enterprise feed for prototype",
+        "demo_ready": not has_active_disruption,
+        "demo_armed": demo_armed,
         "next_event": next_event,
     }
 
@@ -470,15 +491,49 @@ def process_next_feed_event(
     }
 
 
+def start_company_feed_demo(db: Session) -> Dict[str, Any]:
+    """Arm the controlled pitch event without changing the operational state."""
+    db.add(
+        AuditLog(
+            event="DEMO_STARTED",
+            timestamp=datetime.now().strftime("%I:%M:%S %p"),
+            actor="PITCH_CONTROLLER",
+            details="Synthetic supplier disruption armed for the ORVEX presentation.",
+            source_type="ERP_SIMULATION",
+        )
+    )
+    db.commit()
+    return {
+        "status": "ready",
+        "feed_status": "LIVE",
+        "message": "Demo event armed. The next dashboard poll will detect the supplier signal.",
+        "pending_events": 1,
+        "sources": CONNECTED_SOURCES,
+        "event": CANONICAL_FEED_EVENT,
+    }
+
+
 def reset_company_feed(db: Session) -> Dict[str, Any]:
     """Reset the operational company feed queue and seed the healthy baseline."""
     from app.services.manufacturing_service import seed_healthy_state
 
     seed_healthy_state(db)
+    db.add(
+        AuditLog(
+            event="DEMO_RESET",
+            timestamp=datetime.now().strftime("%I:%M:%S %p"),
+            actor="PITCH_CONTROLLER",
+            details="Synthetic pitch environment reset to the healthy baseline.",
+            source_type="ERP_SIMULATION",
+        )
+    )
+    db.commit()
     return {
         "status": "connected",
         "feed_status": "LIVE",
         "message": "Company operational feed reset. Baseline healthy state restored.",
-        "pending_events": 1,
+        "pending_events": 0,
         "sources": CONNECTED_SOURCES,
+        "demo_ready": True,
+        "demo_armed": False,
     }
