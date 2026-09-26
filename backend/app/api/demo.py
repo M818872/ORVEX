@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models.models import Workspace, AuditLog
 from app.services.document_service import load_demo_files
+from app.services.company_feed_service import start_company_feed_demo, reset_company_feed
 from app.ai.engine import reasoning_engine
 
 logger = logging.getLogger("actionos")
@@ -138,3 +139,15 @@ def demo_status(db: Session = Depends(get_db)):
         "analysis_id": latest.id if latest else None,
         "analysis_status": latest.status if latest else None,
     }
+
+
+@router.post("/demo/pitch/start")
+def start_pitch_demo(db: Session = Depends(get_db)):
+    """Arm the synthetic supplier disruption used by the live pitch."""
+    return start_company_feed_demo(db)
+
+
+@router.post("/demo/pitch/reset")
+def reset_pitch_demo(db: Session = Depends(get_db)):
+    """Reset the manufacturing demo environment to the healthy baseline."""
+    return reset_company_feed(db)
