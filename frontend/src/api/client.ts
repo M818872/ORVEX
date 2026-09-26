@@ -449,4 +449,9 @@ export const processNextFeedEvent = (override?: Partial<CompanyFeedEvent>) =>
 export const resetCompanyFeed = () =>
   API.post('/company-feed/reset').then(r => r.data);
 
+export const startPitchDemo = () =>
+  API.post('/demo/pitch/start').then(r => r.data);
+
+export const resetPitchDemo = () =>
+  API.post('/demo/pitch/reset').then(r => r.data);
 
