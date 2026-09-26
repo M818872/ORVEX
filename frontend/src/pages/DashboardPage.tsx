@@ -13,6 +13,7 @@ import {
   getCompanyFeedStatus,
   processNextFeedEvent,
   resetCompanyFeed,
+  startPitchDemo,
   type ProcessFeedEventResponse,
   type DataLineageItem
 } from '../api/client';
@@ -198,7 +199,22 @@ const DashboardPage: React.FC = () => {
     }
   }, [feedStatus, analysisState, isServerHealthy, setStage, markCompleted, qc, processFeedMutation]);
 
-  const isMutating = processFeedMutation.isPending || resetMutation.isPending;
+  const startDemoMutation = useMutation({
+    mutationFn: startPitchDemo,
+    onSuccess: () => {
+      setAnalysisState('healthy');
+      setPipelineStep(0);
+      setFeedProcessedData(null);
+      isAutoProcessingRef.current = false;
+      qc.invalidateQueries({ queryKey: ['company_feed_status'] });
+    },
+    onError: (err) => console.error('Failed to start pitch demo:', err),
+  });
+
+  const isMutating =
+    processFeedMutation.isPending ||
+    resetMutation.isPending ||
+    startDemoMutation.isPending;
 
   // Derive display metrics: Show disruption only after complete!
   const showDisruption = analysisState === 'complete';
@@ -261,6 +277,18 @@ const DashboardPage: React.FC = () => {
 
         {/* Unobtrusive reset control for clean demo repeatability */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            id="btn-start-live-demo"
+            onClick={() => startDemoMutation.mutate()}
+            disabled={isMutating || showDisruption}
+            className="btn btn-primary btn-sm"
+            title="Arm the synthetic supplier event and let ORVEX process it through the real backend pipeline"
+            style={{ fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+          >
+            <Radio size={14} className={startDemoMutation.isPending ? 'spin' : ''} />
+            {startDemoMutation.isPending ? 'Arming…' : 'Start Live Demo'}
+          </button>
+
           <button
             id="btn-reset-baseline"
             onClick={() => resetMutation.mutate()}
