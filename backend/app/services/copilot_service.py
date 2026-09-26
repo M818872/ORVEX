@@ -15,7 +15,7 @@ from app.models.models import (
 )
 from app.ai.llm import is_llm_available, call_llm
 
-logger = logging.getLogger("actionos")
+logger = logging.getLogger("orvex")
 
 
 def answer_copilot_query(

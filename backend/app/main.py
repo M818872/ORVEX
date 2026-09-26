@@ -1,4 +1,4 @@
-"""ACTIONOS FastAPI main application — Production Disruption & Recovery Copilot."""
+"""ORVEX FastAPI main application — Production Disruption & Recovery Copilot."""
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -16,7 +16,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     datefmt="%H:%M:%S",
 )
-logger = logging.getLogger("actionos")
+logger = logging.getLogger("orvex")
 
 
 @asynccontextmanager
@@ -32,7 +32,7 @@ async def lifespan(app: FastAPI):
     from app.services.manufacturing_service import seed_healthy_state
 
     Base.metadata.create_all(bind=engine)
-    logger.info("ACTIONOS backend started — database tables ready")
+    logger.info("ORVEX backend started — database tables ready")
 
     # Seed initial 94% healthy state
     db = SessionLocal()
@@ -44,13 +44,13 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    logger.info("ACTIONOS backend shutting down")
+    logger.info("ORVEX backend shutting down")
 
 
 app = FastAPI(
-    title="ACTIONOS API — AI Production Disruption & Recovery Copilot",
+    title="ORVEX API — AI Production Disruption & Recovery Copilot",
     description=(
-        "Detect. Trace. Simulate. Recover.\n\n"
+        "Turn operational disruption into a recovery decision.\n\n"
         "AI-powered manufacturing operations assistant for electronics supply-chain disruptions."
     ),
     version="2.0.0",
@@ -70,9 +70,10 @@ app.add_middleware(
 )
 
 # Register routers
-from app.api import manufacturing  # noqa: E402
+from app.api import manufacturing, company_feed  # noqa: E402
 
 app.include_router(manufacturing.router, prefix="/api")
+app.include_router(company_feed.router, prefix="/api")
 
 
 @app.get("/health", tags=["Health"])
@@ -80,11 +81,12 @@ def health_check():
     from app.ai.llm import is_llm_available
     return {
         "status": "ok",
-        "service": "ACTIONOS API",
+        "service": "ORVEX API",
         "system": "NovaCore Electronics Operations",
-        "tagline": "Detect. Trace. Simulate. Recover.",
+        "tagline": "Turn operational disruption into a recovery decision.",
         "version": "2.0.0",
         "llm_available": is_llm_available(),
         "llm_provider": os.getenv("LLM_PROVIDER", "openai"),
         "llm_model": os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
     }
+

@@ -1,4 +1,4 @@
-"""ACTIONOS Manufacturing Pydantic Schemas."""
+"""ORVEX Manufacturing Pydantic Schemas."""
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel
@@ -241,4 +241,40 @@ class InboxHistoryItem(BaseModel):
     status: str
     created_at: str
     disruption_id: int
+
+
+class DataSourceItem(BaseModel):
+    name: str
+    status: str
+
+
+class CompanyFeedStatus(BaseModel):
+    status: str
+    feed_status: str
+    sources: List[DataSourceItem]
+    last_sync: str
+    pending_events: int
+    note: Optional[str] = "Synthetic enterprise feed for prototype"
+    next_event: Optional[Dict[str, Any]] = None
+
+
+class DataLineageItem(BaseModel):
+    stage: str
+    timestamp: str
+    title: str
+    detail: str
+    source: str
+
+
+class ProcessFeedEventResponse(BaseModel):
+    status: str
+    disruption_id: int
+    event: Dict[str, Any]
+    resolved_entities: Dict[str, Any]
+    bom_dependency: Dict[str, Any]
+    impact_summary: Dict[str, Any]
+    recommendation: Dict[str, Any]
+    lineage: List[DataLineageItem]
+    message: str
+
 

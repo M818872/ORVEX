@@ -128,7 +128,7 @@ const InboxPage: React.FC = () => {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-              Give ACTIONOS new information
+              Give ORVEX new information
             </h1>
             <span style={{
               display: 'inline-flex',
@@ -346,7 +346,7 @@ const InboxPage: React.FC = () => {
             borderRadius: 'var(--radius-sm)',
             border: '1px solid var(--border-default)'
           }}>
-            ACTIONOS automatically connects new incoming signals to this active company data.
+            ORVEX automatically connects new incoming signals to this active company data.
           </div>
         </div>
       </div>

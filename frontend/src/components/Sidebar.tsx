@@ -23,7 +23,9 @@ const Sidebar: React.FC = () => {
         </div>
         <div>
           <div className="sidebar-logo-title">ORVEX</div>
-          <div className="sidebar-logo-tagline">Disruption Copilot</div>
+          <div className="sidebar-logo-tagline" style={{ fontSize: 9, lineHeight: 1.2, color: 'var(--text-muted)' }}>
+            AI Recovery Copilot
+          </div>
         </div>
       </div>
 

@@ -15,7 +15,7 @@ from app.models.models import (
 from app.services.document_parser import parse_document_file
 from app.ai.llm import call_llm, is_llm_available
 
-logger = logging.getLogger("actionos")
+logger = logging.getLogger("orvex")
 
 SAMPLES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "samples")
 
@@ -410,35 +410,35 @@ def execute_ingestion_pipeline(filename: str, file_bytes: bytes, db: Session) ->
         AuditLog(
             event="Supplier communication received",
             timestamp=datetime.now().strftime("%I:%M %p"),
-            actor="ACTIONOS INGESTION PIPELINE",
+            actor="ORVEX INGESTION PIPELINE",
             details=f"Received and parsed '{filename}' ({len(raw_text)} chars). Natural language ingestion completed.",
             source_type="DOCUMENT_INGEST"
         ),
         AuditLog(
             event=f"{material.name} delay identified",
             timestamp=datetime.now().strftime("%I:%M %p"),
-            actor="ACTIONOS AI",
+            actor="ORVEX AI",
             details=f"Identified {material.name} (Part #{material.part_number}) delay of {extraction['delay_days']} days (ETA {extraction['old_eta']} -> {extraction['new_eta']}). Supplier: {supplier.name}.",
             source_type="ENTITY_RESOLUTION"
         ),
         AuditLog(
             event="Affected production identified",
             timestamp=datetime.now().strftime("%I:%M %p"),
-            actor="ACTIONOS AI",
+            actor="ORVEX AI",
             details=f"Traced 3 affected production orders ({', '.join(po['order_number'] for po in affected_orders_list)}). 500 critical units at risk.",
             source_type="DEPENDENCY_ENGINE"
         ),
         AuditLog(
             event="Customer commitment identified",
             timestamp=datetime.now().strftime("%I:%M %p"),
-            actor="ACTIONOS AI",
+            actor="ORVEX AI",
             details="Traced to Customer C8821 delivery contract committed for October 20.",
             source_type="RISK_ANALYSIS"
         ),
         AuditLog(
             event="Recovery options generated",
             timestamp=datetime.now().strftime("%I:%M %p"),
-            actor="ACTIONOS AI",
+            actor="ORVEX AI",
             details="Generated 3 synthetic response options: Option A (Expedite), Option B (Alternate Supplier), Option C (Reschedule).",
             source_type="AI_RECOMMENDATION"
         )

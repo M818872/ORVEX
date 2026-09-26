@@ -1,4 +1,4 @@
-"""ACTIONOS Manufacturing Operations & Disruption Models — NovaCore Electronics."""
+"""ORVEX Manufacturing Operations & Disruption Models — NovaCore Electronics."""
 import json
 from datetime import datetime
 from typing import Optional, List

@@ -12,7 +12,7 @@ from app.models.models import (
 )
 from app.ai.llm import call_llm_json, is_llm_available
 
-logger = logging.getLogger("actionos")
+logger = logging.getLogger("orvex")
 
 
 def seed_healthy_state(db: Session):
@@ -392,7 +392,7 @@ Message:
     ]
 
     for ts, ev, det, src in audit_events:
-        db.add(AuditLog(event=ev, timestamp=ts, actor="ACTIONOS AI", details=det, source_type=src))
+        db.add(AuditLog(event=ev, timestamp=ts, actor="ORVEX AI", details=det, source_type=src))
     db.commit()
 
     logger.info(f"Disruption processing complete. Disruption ID: {disruption.id}")

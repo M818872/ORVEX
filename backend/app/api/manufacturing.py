@@ -1,4 +1,4 @@
-"""ACTIONOS Manufacturing Operations API Router."""
+"""ORVEX Manufacturing Operations API Router."""
 import os
 import json
 import logging
@@ -27,7 +27,7 @@ from app.services.ingestion_service import (
 )
 from app.services.copilot_service import answer_copilot_query
 
-logger = logging.getLogger("actionos")
+logger = logging.getLogger("orvex")
 router = APIRouter(tags=["Manufacturing Operations"])
 
 

@@ -1,4 +1,4 @@
-"""ACTIONOS Document Parser — Ingestion for TXT, EML, PDF, CSV, and XLSX."""
+"""ORVEX Document Parser — Ingestion for TXT, EML, PDF, CSV, and XLSX."""
 import io
 import csv
 import email
@@ -6,7 +6,7 @@ from email import policy
 import logging
 from typing import Dict, Any, Tuple
 
-logger = logging.getLogger("actionos")
+logger = logging.getLogger("orvex")
 
 
 def parse_document_file(filename: str, file_bytes: bytes) -> Tuple[str, Dict[str, Any]]:

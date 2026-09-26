@@ -347,3 +347,106 @@ export const injectSampleDocument = (sampleId: string) =>
 export const getInboxHistory = () =>
   API.get<InboxHistoryItem[]>('/inbox/history').then(r => r.data);
 
+// ── Company Operational Feed Types & Endpoints ──────────────────────────────
+
+export interface DataSourceItem {
+  name: string;
+  status: string;
+}
+
+export interface CompanyFeedEvent {
+  event_type: string;
+  supplier: string;
+  purchase_order: string;
+  material: string;
+  previous_eta: string;
+  new_eta: string;
+  delay_days: number;
+  reason: string;
+  source: string;
+  synthetic?: boolean;
+}
+
+export interface CompanyFeedStatus {
+  status: string;
+  feed_status: string;
+  sources: DataSourceItem[];
+  last_sync: string;
+  pending_events: number;
+  note?: string;
+  next_event?: CompanyFeedEvent | null;
+}
+
+export interface DataLineageItem {
+  stage: string;
+  timestamp: string;
+  title: string;
+  detail: string;
+  source: string;
+}
+
+export interface ProcessFeedEventResponse {
+  status: string;
+  disruption_id: number;
+  event: CompanyFeedEvent;
+  resolved_entities: {
+    supplier: string;
+    supplier_id: number;
+    material: string;
+    material_id: number;
+    part_number: string;
+    purchase_order: string;
+  };
+  bom_dependency: {
+    product_id: number;
+    product_name: string;
+    product_sku: string;
+    component_role: string;
+  };
+  impact_summary: {
+    affected_orders_count: number;
+    affected_orders: Array<{
+      order_number: string;
+      product_name: string;
+      quantity: number;
+      start_date: string;
+      line_name: string;
+      status: string;
+    }>;
+    affected_units: number;
+    affected_customers_count: number;
+    affected_customers: Array<{
+      customer_name: string;
+      product_name: string;
+      quantity: number;
+      delivery_date: string;
+      priority: string;
+      status: string;
+    }>;
+    affected_lines: string[];
+    risk_level: string;
+    delay_days: number;
+    new_eta: string;
+    old_eta: string;
+  };
+  recommendation: {
+    recommended_option: string;
+    cost: string;
+    delay: string;
+    rationale: string;
+    total_options: number;
+  };
+  lineage: DataLineageItem[];
+  message: string;
+}
+
+export const getCompanyFeedStatus = () =>
+  API.get<CompanyFeedStatus>('/company-feed/status').then(r => r.data);
+
+export const processNextFeedEvent = (override?: Partial<CompanyFeedEvent>) =>
+  API.post<ProcessFeedEventResponse>('/company-feed/process-next', override).then(r => r.data);
+
+export const resetCompanyFeed = () =>
+  API.post('/company-feed/reset').then(r => r.data);
+
+
