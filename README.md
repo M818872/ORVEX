@@ -1,4 +1,4 @@
-# ACTIONOS
+# ORVEX
 
 ## AI Production Disruption & Recovery Copilot
 
@@ -14,7 +14,7 @@
 
 ## 1. Product Vision & Industry Context
 
-**ACTIONOS** is an AI-powered manufacturing operations assistant built specifically for **Electronics Manufacturing**.
+**ORVEX** is an AI-powered manufacturing operations assistant built specifically for **Electronics Manufacturing**.
 
 In high-mix electronics assembly plants, a supplier disruption often arrives as an innocent-looking email:
 > *"Due to a logistics disruption during air freight consolidation in Singapore, shipment of MCU-742 originally expected on October 12 is now expected on October 17."*
@@ -25,13 +25,13 @@ In traditional enterprise plants, the critical operational knowledge is fragment
 * *Will customer delivery commitments slip?*
 * *What are our recovery options?*
 
-**ACTIONOS automates this investigation in seconds.**
+**ORVEX automates this investigation in seconds.**
 
 The core operating loop is:
 ```text
 A Disruption Happens
        ↓
-ACTIONOS Understands It (Document Parser & LLM Extraction)
+ORVEX Understands It (Document Parser & LLM Extraction)
        ↓
 Traces Operational Impact (Supplier → Material → BOM → Order → Customer)
        ↓
@@ -46,9 +46,9 @@ Human-in-the-Loop Approves & Executes (ERP Update Simulation & Audit Trail)
 
 ## 2. Core Product Promise
 
-When operational reality changes, ACTIONOS immediately answers five essential questions:
+When operational reality changes, ORVEX immediately answers five essential questions:
 
-| # | Question | ACTIONOS Dynamic Output |
+| # | Question | ORVEX Dynamic Output |
 |---|---|---|
 | **1** | **What changed?** | MicroTech Components delayed MCU-742 shipment by +5 days (Oct 12 → Oct 17). |
 | **2** | **What is affected?** | 3 Production Orders, 500 Finished Units, 1 Customer Commitment, 2 SMT Lines. |
@@ -56,7 +56,7 @@ When operational reality changes, ACTIONOS immediately answers five essential qu
 | **4** | **What can we do?** | 3 Recovery Strategies generated: Expedite Air Freight, Qualify Alternate Supplier, or Reschedule SMT Line 2. |
 | **5** | **Which option should we consider?** | Recommends **Option A (Expedite)** because it protects the Oct 20 delivery date at minimal incremental cost (₹42,000) and zero quality risk. |
 
-> **Crucial Rule:** The final decision always remains with the human manager. ACTIONOS provides intelligence, evidence, and simulated execution upon approval.
+> **Crucial Rule:** The final decision always remains with the human manager. ORVEX provides intelligence, evidence, and simulated execution upon approval.
 
 ---
 
@@ -75,7 +75,7 @@ When operational reality changes, ACTIONOS immediately answers five essential qu
 
 ## 4. Visual Dependency Graph (Impact Propagation)
 
-ACTIONOS models the entire manufacturing topological chain:
+ORVEX models the entire manufacturing topological chain:
 
 ```
 MicroTech Components (Supplier)
@@ -101,7 +101,7 @@ In the **Disruptions Investigation** screen, this chain is rendered as an intera
 
 ## 5. Recovery Simulator & Strategy Comparison
 
-ACTIONOS generates three distinct recovery strategies with dynamic trade-off evaluation:
+ORVEX generates three distinct recovery strategies with dynamic trade-off evaluation:
 
 | Metric | Option A: Expedite Air Freight (Recommended) | Option B: Alternate Supplier (Apex Semi) | Option C: Reschedule Production |
 |---|---|---|---|
@@ -121,18 +121,18 @@ The prototype is engineered for a seamless 7-minute evaluation:
 | Time | Stage | Action & Key Talking Points |
 |---|---|---|
 | **0:00 – 1:00** | **Problem Framing** | *"A supplier delay looks like a simple email, but its real impact is distributed across the manufacturing system."* Show how fragmented ERP, BOM, and sales order data make disruption management slow and error-prone. |
-| **1:00 – 2:00** | **Healthy State** | View the **ACTIONOS Dashboard**: <br/>• Production Health: **94%** <br/>• At-Risk Orders: **0** <br/>• Material Risks: **0** <br/>• Supplier Alerts: **0** <br/>• Order #1042: **Healthy** (500 units of NovaCore Edge Controller AX42 for Customer C8821, delivery Oct 20). |
-| **2:00 – 3:00** | **Inject Disruption** | Click `[🔴 Inject Supplier Disruption]`. ACTIONOS ingests the synthetic supplier email through the actual AI processing pipeline (entity extraction, date calculation, BOM lookup). |
+| **1:00 – 2:00** | **Healthy State** | View the **ORVEX Dashboard**: <br/>• Production Health: **94%** <br/>• At-Risk Orders: **0** <br/>• Material Risks: **0** <br/>• Supplier Alerts: **0** <br/>• Order #1042: **Healthy** (500 units of NovaCore Edge Controller AX42 for Customer C8821, delivery Oct 20). |
+| **2:00 – 3:00** | **Inject Disruption** | Click `[🔴 Inject Supplier Disruption]`. ORVEX ingests the synthetic supplier email through the actual AI processing pipeline (entity extraction, date calculation, BOM lookup). |
 | **3:00 – 4:00** | **Disruption Detected** | Dashboard updates dynamically: <br/>• Production Health drops to **78%** <br/>• At-Risk Orders jumps to **3** <br/>• Disruption Alert banner: **MCU-742 delayed by 5 days (500 units affected)**. Click `[Investigate]`. |
 | **4:00 – 5:00** | **Trace Impact & Evidence** | Walk through the **4-Pillar Investigation Grid** (What Changed, Why It Matters, What Is Affected, Customer Impact). Show the **Visual Dependency Graph** highlighting affected nodes from MicroTech Components down to Customer C8821. Inspect source email evidence citations. |
 | **5:00 – 6:00** | **Simulate Recovery** | Navigate to the **Recovery Simulator**. Review the trade-off matrix comparing Option A (Expedite), Option B (Alternate Supplier), and Option C (Reschedule). |
-| **6:00 – 7:00** | **Human Approval & Recovery** | Click `[Approve Recovery Plan]` on Option A. Authorize execution. ACTIONOS simulates ERP production order reschedule, air freight booking, updates health metrics, and records an immutable **Audit Trail** entry. |
+| **6:00 – 7:00** | **Human Approval & Recovery** | Click `[Approve Recovery Plan]` on Option A. Authorize execution. ORVEX simulates ERP production order reschedule, air freight booking, updates health metrics, and records an immutable **Audit Trail** entry. |
 
 ---
 
 ## 7. Real Data Inbox & Ingestion Pipeline
 
-ACTIONOS features an autonomous **Data Inbox** supporting ingestion of real supplier documents across 5 common enterprise formats:
+ORVEX features an autonomous **Data Inbox** supporting ingestion of real supplier documents across 5 common enterprise formats:
 * **`.TXT`**: Plaintext supplier notices and EDI memos
 * **`.EML`**: Email advisories with MIME header extraction (`From`, `Subject`, `Date`) and body parsing
 * **`.PDF`**: Formal supplier shipment delay notices parsed via `PyPDF2`
@@ -205,7 +205,7 @@ Incoming Supplier Email / Event
 
 * **Frontend:** React 18, TypeScript, Vite, Tailwind CSS, Lucide Icons, React Flow-inspired visual nodes, Custom Enterprise Design System.
 * **Backend:** Python 3.12, FastAPI, SQLAlchemy ORM, Pydantic v2 schemas, Uvicorn ASGI.
-* **Database:** SQLite (local zero-config database `actionos.db`) with full PostgreSQL schema compatibility.
+* **Database:** SQLite (local zero-config database `ORVEX.db`) with full PostgreSQL schema compatibility.
 * **AI Engine:** Configurable LLM integration with dynamic fallback reasoning for deterministic, high-fidelity demo execution.
 
 ---
@@ -252,6 +252,6 @@ import urllib.request, json
 
 ## 11. Final Pitch
 
-> **"ACTIONOS is an AI Production Disruption & Recovery Copilot for manufacturers. When a supplier or operational disruption occurs, ACTIONOS automatically traces its impact from material to production to customer commitments, compares recovery strategies, and recommends a recovery plan for human approval."**
+> **"ORVEX is an AI Production Disruption & Recovery Copilot for manufacturers. When a supplier or operational disruption occurs, ORVEX automatically traces its impact from material to production to customer commitments, compares recovery strategies, and recommends a recovery plan for human approval."**
 
 **Detect. Trace. Simulate. Recover.**
